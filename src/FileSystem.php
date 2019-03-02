@@ -3,7 +3,7 @@
 namespace Tsc\CatStorageSystem;
 
 use DateTime;
-use Tsc\CatStorageSystem\Exceptions\RootDirectoryNotDefinedException;
+use Tsc\CatStorageSystem\Exceptions;
 
 class FileSystem implements FileSystemInterface
 {
@@ -56,12 +56,12 @@ class FileSystem implements FileSystemInterface
      *
      * @return DirectoryInterface
      *
-     * @throws RootDirectoryNotDefinedException{@
+     * @throws Exceptions\RootDirectoryNotDefinedException{@
      */
     public function createDirectory(DirectoryInterface $directory, DirectoryInterface $parent)
     {
         if (is_null($this->root)) {
-            throw new RootDirectoryNotDefinedException;
+            throw new Exceptions\RootDirectoryNotDefinedException;
         }
 
         $directory->setPath($this->root->getPath() . '/' . $directory->getName());
@@ -73,9 +73,37 @@ class FileSystem implements FileSystemInterface
         return $directory;
     }
 
+    /**
+     * @param DirectoryInterface $directory
+     *
+     * @return bool
+     *
+     * @throws Exceptions\CannotDeleteDirectoryOutsideRootException
+     */
     public function deleteDirectory(DirectoryInterface $directory)
     {
-        return true;
+        if (!is_dir($directory->getPath())) {
+            return true;
+        }
+
+        if (!$this->pathIsWithinRoot($directory)) {
+            throw new Exceptions\CannotDeleteDirectoryOutsideRootException;
+        }
+
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($directory->getPath(), \RecursiveDirectoryIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        foreach ($files as $file) {
+            if ($file->isDir()) {
+                rmdir($file->getRealPath());
+            } else {
+                unlink($file->getRealPath());
+            }
+        }
+
+        return rmdir($directory->getPath());
     }
 
     public function renameDirectory(DirectoryInterface $directory, $newName)
@@ -106,5 +134,14 @@ class FileSystem implements FileSystemInterface
     public function getFiles(DirectoryInterface $directory)
     {
         return [];
+    }
+
+    private function pathIsWithinRoot(DirectoryInterface $directory)
+    {
+        $rootPath      = realpath($this->root->getPath());
+        $directoryPath = realpath($directory->getPath());
+
+        return $rootPath !== ''
+            && substr($directoryPath, 0, strlen($rootPath)) === $rootPath;
     }
 }
