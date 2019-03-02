@@ -1,20 +1,25 @@
 <?php
 
-namespace Tsc\CatStorageSystem;
+namespace Tsc\CatStorageSystem\Tests;
 
 use DateTime;
+use Tsc\CatStorageSystem\File;
 use PHPUnit\Framework\TestCase;
+use Tsc\CatStorageSystem\FileInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use Tsc\CatStorageSystem\DirectoryInterface;
 
-class FileInterfaceTest extends TestCase {
-
-    public function test_it_creates_a_new_instance() {
-
+class FileInterfaceTest extends TestCase
+{
+    public function test_it_creates_a_new_instance()
+    {
         $stub = $this->createMock(FileInterface::class);
         $this->assertTrue($stub instanceof FileInterface);
     }
 
     public function test_it_can_set_and_return_the_file_attributes()
     {
+        /** @var DirectoryInterface|MockObject $parentDirectory */
         $parentDirectory = $this->createMock(DirectoryInterface::class);
         $parentDirectory->method('getName')->willReturn('test_directory');
         $parentDirectory->method('getCreatedTime')->willReturn(new DateTime('2019-03-02 00:00:00'));
