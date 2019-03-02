@@ -3,7 +3,8 @@
     "description": "3 Sided Cube PHP Task",
     "type": "project",
     "require-dev": {
-        "phpunit/phpunit": "^6.4"
+        "phpunit/phpunit": "^6.4",
+        "mockery/mockery": "^1.2"
     },
     "require": {},
     "autoload": {
