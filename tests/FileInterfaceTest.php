@@ -2,6 +2,7 @@
 
 namespace Tsc\CatStorageSystem;
 
+use DateTime;
 use PHPUnit\Framework\TestCase;
 
 class FileInterfaceTest extends TestCase {
@@ -10,5 +11,26 @@ class FileInterfaceTest extends TestCase {
 
         $stub = $this->createMock(FileInterface::class);
         $this->assertTrue($stub instanceof FileInterface);
+    }
+
+    public function test_it_can_set_and_return_the_file_attributes()
+    {
+        $parentDirectory = $this->createMock(DirectoryInterface::class);
+        $parentDirectory->method('getName')->willReturn('test_directory');
+        $parentDirectory->method('getCreatedTime')->willReturn(new DateTime('2019-03-02 00:00:00'));
+        $parentDirectory->method('getPath')->willReturn('/test_directory');
+
+        $file = (new File)
+            ->setName('test.txt')
+            ->setSize(1000)
+            ->setCreatedTime(new DateTime('2019-03-02 00:00:00'))
+            ->setModifiedTime(new DateTime('2019-03-02 01:00:00'))
+            ->setParentDirectory($parentDirectory);
+
+        $this->assertEquals('test.txt', $file->getName());
+        $this->assertEquals(1000, $file->getSize());
+        $this->assertEquals(new DateTime('2019-03-02 00:00:00'), $file->getCreatedTime());
+        $this->assertEquals(new DateTime('2019-03-02 01:00:00'), $file->getModifiedTime());
+        $this->assertEquals($parentDirectory, $file->getParentDirectory());
     }
 }
