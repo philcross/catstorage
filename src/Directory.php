@@ -2,6 +2,7 @@
 
 namespace Tsc\CatStorageSystem;
 
+use DateTime;
 use DateTimeInterface;
 
 class Directory implements DirectoryInterface
@@ -14,6 +15,22 @@ class Directory implements DirectoryInterface
 
     /** @var string */
     private $path;
+
+    /**
+     * @param string $path
+     * @param DateTimeInterface|null $created
+     *
+     * @return static
+     */
+    public static function hydrate($path, DateTimeInterface $created = null)
+    {
+        $instance = new static;
+
+        return $instance
+            ->setName(basename($path))
+            ->setPath($path)
+            ->setCreatedTime($created ?: new DateTime);
+    }
 
     /**
      * {@inheritdoc}

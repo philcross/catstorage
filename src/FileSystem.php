@@ -81,7 +81,7 @@ class FileSystem implements FileSystemInterface
      *
      * @return bool
      *
-     * @throws Exceptions\CannotDeleteDirectoryOutsideRootException
+     * @throws Exceptions\DirectoryMustBeWithinRootException
      */
     public function deleteDirectory(DirectoryInterface $directory)
     {
@@ -90,7 +90,7 @@ class FileSystem implements FileSystemInterface
         }
 
         if (!$this->pathIsWithinRoot($directory)) {
-            throw new Exceptions\CannotDeleteDirectoryOutsideRootException;
+            throw new Exceptions\DirectoryMustBeWithinRootException;
         }
 
         return $this->recursiveDeleteDirectories($directory->getPath());
@@ -106,7 +106,7 @@ class FileSystem implements FileSystemInterface
             ->setPath($newPath);
 
         if (!$this->pathIsWithinRoot($moveTo)) {
-            throw new Exceptions\CannotMoveDirectoryOutsideRootException;
+            throw new Exceptions\DirectoryMustBeWithinRootException;
         }
 
         if (!is_dir($newPath)) {
@@ -133,7 +133,7 @@ class FileSystem implements FileSystemInterface
         if (!$this->pathIsWithinRoot($directory)) {
             throw new Exceptions\DirectoryMustBeWithinRootException;
         }
-        
+
         $size = 0;
 
         $files = new \RecursiveIteratorIterator(
