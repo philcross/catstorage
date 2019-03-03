@@ -4,9 +4,12 @@ namespace Tsc\CatStorageSystem;
 
 use DateTime;
 use Tsc\CatStorageSystem\Exceptions;
+use Tsc\CatStorageSystem\Traits\DirectoryHelpers;
 
 class FileSystem implements FileSystemInterface
 {
+    use DirectoryHelpers;
+
     /** @var DirectoryInterface */
     private $root;
 
@@ -90,25 +93,29 @@ class FileSystem implements FileSystemInterface
             throw new Exceptions\CannotDeleteDirectoryOutsideRootException;
         }
 
-        $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($directory->getPath(), \RecursiveDirectoryIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::CHILD_FIRST
-        );
-
-        foreach ($files as $file) {
-            if ($file->isDir()) {
-                rmdir($file->getRealPath());
-            } else {
-                unlink($file->getRealPath());
-            }
-        }
-
-        return rmdir($directory->getPath());
+        return $this->recursiveDeleteDirectories($directory->getPath());
     }
 
     public function renameDirectory(DirectoryInterface $directory, $newName)
     {
-        return $directory;
+        $base = pathinfo($directory->getPath(), PATHINFO_DIRNAME);
+        $newPath = $base . '/' . trim($newName, '/');
+
+        $moveTo = (new Directory)
+            ->setName(basename($newPath))
+            ->setPath($newPath);
+
+        if (!$this->pathIsWithinRoot($moveTo)) {
+            throw new Exceptions\CannotMoveDirectoryOutsideRootException;
+        }
+
+        if (!is_dir($newPath)) {
+            mkdir($newPath, 0777, true);
+        }
+
+        rename($directory->getPath(), $newPath);
+
+        return $moveTo->setCreatedTime(new DateTime);
     }
 
     public function getDirectoryCount(DirectoryInterface $directory)
@@ -138,8 +145,8 @@ class FileSystem implements FileSystemInterface
 
     private function pathIsWithinRoot(DirectoryInterface $directory)
     {
-        $rootPath      = realpath($this->root->getPath());
-        $directoryPath = realpath($directory->getPath());
+        $rootPath      = $this->realpath($this->root->getPath());
+        $directoryPath = $this->realpath($directory->getPath());
 
         return $rootPath !== ''
             && substr($directoryPath, 0, strlen($rootPath)) === $rootPath;
