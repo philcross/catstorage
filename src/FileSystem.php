@@ -173,7 +173,7 @@ class FileSystem implements FileSystemInterface
 
     public function getFileCount(DirectoryInterface $directory)
     {
-        return 0;
+        return count($this->getFiles($directory));
     }
 
     public function getDirectorySize(DirectoryInterface $directory)
@@ -211,7 +211,27 @@ class FileSystem implements FileSystemInterface
 
     public function getFiles(DirectoryInterface $directory)
     {
-        return [];
+        if (!$this->pathIsWithinRoot($directory)) {
+            throw new Exceptions\DirectoryMustBeWithinRootException;
+        }
+
+        $contents = new \DirectoryIterator($directory->getPath());
+
+        $files = [];
+
+        foreach ($contents as $item) {
+            if ($item->isFile()) {
+                $files[] = (new File)
+                    ->setName($item->getBasename())
+                    ->setCreatedTime(DateTime::createFromFormat('U', $item->getCTime()))
+                    ->setModifiedTime(DateTime::createFromFormat('U', $item->getMTime()))
+                    ->setSize($item->getSize())
+                    ->setContent(file_get_contents($item->getPathname()))
+                    ->setParentDirectory($directory);
+            }
+        }
+
+        return $files;
     }
 
     private function pathIsWithinRoot(DirectoryInterface $directory)
