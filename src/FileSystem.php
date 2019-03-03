@@ -20,11 +20,45 @@ class FileSystem implements FileSystemInterface
 
     public function createFile(FileInterface $file, DirectoryInterface $parent)
     {
+        if (!$this->pathIsWithinRoot($parent)) {
+            throw new Exceptions\DirectoryMustBeWithinRootException;
+        }
+
+        $parentInfo = pathinfo($parent->getPath());
+
+        if (!is_dir($parent->getPath())) {
+            $parent = $this->createDirectory(
+                $parent,
+                (new Directory)->setName(basename($parentInfo['dirname']))->setPath($parentInfo['dirname'])
+            );
+        }
+
+        $size = file_put_contents($parent->getPath() . '/' . $file->getName(), $file->getContent());
+
+        $file->setSize($size)
+            ->setCreatedTime(new DateTime)
+            ->setModifiedTime(new DateTime)
+            ->setParentDirectory($parent);
+
         return $file;
     }
 
     public function updateFile(FileInterface $file)
     {
+        if (!$this->pathIsWithinRoot($file->getParentDirectory())) {
+            throw new Exceptions\DirectoryMustBeWithinRootException;
+        }
+
+        $handle = fopen($file->getPath(), 'w');
+
+        $size = fwrite($handle, $file->getContent());
+
+        fclose($handle);
+
+        $file->setSize($size);
+        $file->setCreatedTime($file->getCreatedTime() ?: new DateTime);
+        $file->setModifiedTime(new DateTime);
+
         return $file;
     }
 
@@ -67,7 +101,7 @@ class FileSystem implements FileSystemInterface
             throw new Exceptions\RootDirectoryNotDefinedException;
         }
 
-        $directory->setPath($this->root->getPath() . '/' . $directory->getName());
+        $directory->setPath($parent->getPath() . '/' . $directory->getName());
 
         mkdir($directory->getPath(), 0777, true);
 

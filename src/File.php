@@ -119,7 +119,7 @@ class File implements FileInterface
      */
     public function getPath()
     {
-        return sprintf('%s/%s', $this->parent->getPath(), 'test.txt');
+        return sprintf('%s/%s', $this->parent->getPath(), $this->name);
     }
 
     /**
