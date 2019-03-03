@@ -64,6 +64,18 @@ class FileSystem implements FileSystemInterface
 
     public function renameFile(FileInterface $file, $newName)
     {
+        $path = pathinfo($file->getPath());
+        $newPath = $path['dirname'] . '/' . $newName;
+
+        if (file_exists($newPath)) {
+            throw new Exceptions\FileAlreadyExistsException;
+        }
+
+        rename($file->getPath(), $newPath);
+
+        $file->setName($newName);
+        $file->setModifiedTime(new DateTime);
+
         return $file;
     }
 
