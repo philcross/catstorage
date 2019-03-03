@@ -70,4 +70,16 @@ interface FileInterface
      * @return string
      */
     public function getPath();
+
+    /**
+     * @param string
+     *
+     * @return $this
+     */
+    public function setContent($content);
+
+    /**
+     * @return string
+     */
+    public function getContent();
 }

@@ -18,6 +18,9 @@ class File implements FileInterface
     /** @var DateTimeInterface */
     private $modified;
 
+    /** @var string */
+    private $content;
+
     /** @var DirectoryInterface */
     private $parent;
 
@@ -117,5 +120,23 @@ class File implements FileInterface
     public function getPath()
     {
         return sprintf('%s/%s', $this->parent->getPath(), 'test.txt');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setContent($content)
+    {
+        $this->content = $content;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getContent()
+    {
+        return $this->content;
     }
 }
