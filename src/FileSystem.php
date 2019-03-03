@@ -81,6 +81,8 @@ class FileSystem implements FileSystemInterface
 
     public function deleteFile(FileInterface $file)
     {
+        @unlink($file->getPath());
+
         return true;
     }
 
