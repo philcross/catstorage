@@ -120,7 +120,7 @@ class FileSystem implements FileSystemInterface
 
     public function getDirectoryCount(DirectoryInterface $directory)
     {
-        return 0;
+        return count($this->getDirectories($directory));
     }
 
     public function getFileCount(DirectoryInterface $directory)
@@ -130,12 +130,35 @@ class FileSystem implements FileSystemInterface
 
     public function getDirectorySize(DirectoryInterface $directory)
     {
-        return 0;
+        if (!$this->pathIsWithinRoot($directory)) {
+            throw new Exceptions\DirectoryMustBeWithinRootException;
+        }
+        
+        $size = 0;
+
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($directory->getPath(), \RecursiveDirectoryIterator::SKIP_DOTS)
+        );
+
+        foreach ($files as $file) {
+            $size += $file->getSize();
+        }
+
+        return $size;
     }
 
     public function getDirectories(DirectoryInterface $directory)
     {
-        return [];
+        if (!$this->pathIsWithinRoot($directory)) {
+            throw new Exceptions\DirectoryMustBeWithinRootException;
+        }
+
+        return array_map(function ($path) {
+            return (new Directory)
+                ->setName(basename($path))
+                ->setCreatedTime(DateTime::createFromFormat('U', filectime($path)))
+                ->setPath($path);
+        }, array_filter(glob($directory->getPath() . '/*'), 'is_dir'));
     }
 
     public function getFiles(DirectoryInterface $directory)
