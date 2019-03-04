@@ -113,8 +113,11 @@ class ListFiles extends Command
             if (!$result) {
                 throw new \Exception('There was an unknown error while deleting this file.');
             }
+
+            return $this->execute($this->input, $this->output);
         } catch (\Exception $e) {
             $this->output->writeln('<error>' . $e->getMessage() . '</error>');
+            return;
         }
 
         $this->output->writeln('<info>File '.$file->getName().' successfully deleted</info>');
@@ -178,7 +181,7 @@ class ListFiles extends Command
         }));
 
         if (!$file) {
-            return void;
+            return null;
         } else {
             return $file[0];
         }
