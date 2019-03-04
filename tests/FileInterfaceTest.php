@@ -21,8 +21,6 @@ class FileInterfaceTest extends TestCase
     {
         /** @var DirectoryInterface|MockObject $parentDirectory */
         $parentDirectory = $this->createMock(DirectoryInterface::class);
-        $parentDirectory->method('getName')->willReturn('test_directory');
-        $parentDirectory->method('getCreatedTime')->willReturn(new DateTime('2019-03-02 00:00:00'));
         $parentDirectory->method('getPath')->willReturn('/test_directory');
 
         $file = (new File)
@@ -39,5 +37,20 @@ class FileInterfaceTest extends TestCase
         $this->assertEquals(new DateTime('2019-03-02 01:00:00'), $file->getModifiedTime());
         $this->assertEquals('test', $file->getContent());
         $this->assertEquals($parentDirectory, $file->getParentDirectory());
+    }
+
+    public function test_it_can_create_a_new_file()
+    {
+        $parent = $parentDirectory = $this->createMock(DirectoryInterface::class);
+        $parentDirectory->method('getPath')->willReturn('/test_directory');
+
+        $file = File::toCreate($parent, 'test.txt', 'This is a test');
+
+        $this->assertEquals('test.txt', $file->getName());
+        $this->assertEquals('/test_directory/test.txt', $file->getPath());
+        $this->assertEquals(0, $file->getSize());
+        $this->assertNull($file->getCreatedTime());
+        $this->assertNull($file->getModifiedTime());
+        $this->assertEquals($parent, $file->getParentDirectory());
     }
 }

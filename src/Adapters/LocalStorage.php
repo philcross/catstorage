@@ -27,11 +27,7 @@ class LocalStorage implements AdapterInterface
     }
 
     /**
-     * @param $path
-     *
-     * @return array
-     *
-     * @throws \Exception
+     * {@inheritdoc}
      */
     public function createDirectory($path)
     {
@@ -54,11 +50,7 @@ class LocalStorage implements AdapterInterface
     }
 
     /**
-     * @param string $path
-     *
-     * @return bool
-     *
-     * @throws \Exception
+     * {@inheritdoc}
      */
     public function deleteDirectory($path)
     {
@@ -83,12 +75,7 @@ class LocalStorage implements AdapterInterface
     }
 
     /**
-     * @param string $oldPath
-     * @param string $newPath
-     *
-     * @return array
-     *
-     * @throws \Exception
+     * {@inheritdoc}
      */
     public function renameDirectory($oldPath, $newPath)
     {
@@ -116,11 +103,7 @@ class LocalStorage implements AdapterInterface
     }
 
     /**
-     * @param string $path
-     *
-     * @return array
-     *
-     * @throws \Exception
+     * {@inheritdoc}
      */
     public function listDirectories($path)
     {
@@ -151,11 +134,7 @@ class LocalStorage implements AdapterInterface
     }
 
     /**
-     * @param string $path
-     *
-     * @return array
-     *
-     * @throws \Exception
+     * {@inheritdoc}
      */
     public function getDirectory($path)
     {
@@ -175,10 +154,7 @@ class LocalStorage implements AdapterInterface
     }
 
     /**
-     * @param $path
-     *
-     * @return int
-     * @throws \Exception
+     * {@inheritdoc}
      */
     public function getDirectorySize($path)
     {
@@ -201,12 +177,7 @@ class LocalStorage implements AdapterInterface
     }
 
     /**
-     * @param string $path
-     * @param string $content
-     *
-     * @return array
-     *
-     * @throws \Exception
+     * {@inheritdoc}
      */
     public function createFile($path, $content)
     {
@@ -233,11 +204,7 @@ class LocalStorage implements AdapterInterface
     }
 
     /**
-     * @param string $path
-     *
-     * @return bool
-     *
-     * @throws \Exception
+     * {@inheritdoc}
      */
     public function deleteFile($path)
     {
@@ -253,12 +220,7 @@ class LocalStorage implements AdapterInterface
     }
 
     /**
-     * @param string $path
-     * @param string $newName
-     *
-     * @return array
-     *
-     * @throws \Exception
+     * {@inheritdoc}
      */
     public function renameFile($path, $newName)
     {
@@ -287,12 +249,7 @@ class LocalStorage implements AdapterInterface
     }
 
     /**
-     * @param string $path
-     * @param string $content
-     *
-     * @return array
-     *
-     * @throws \Exception
+     * {@inheritdoc}
      */
     public function updateFile($path, $content)
     {
@@ -300,11 +257,7 @@ class LocalStorage implements AdapterInterface
     }
 
     /**
-     * @param string $path
-     *
-     * @return array
-     *
-     * @throws \Exception
+     * {@inheritdoc}
      */
     public function listFiles($path)
     {
@@ -337,11 +290,7 @@ class LocalStorage implements AdapterInterface
     }
 
     /**
-     * @param string $path
-     *
-     * @return bool|string
-     *
-     * @throws \Exception
+     * {@inheritdoc}
      */
     public function readFile($path)
     {
@@ -360,11 +309,7 @@ class LocalStorage implements AdapterInterface
     }
 
     /**
-     * @param string $path
-     *
-     * @return array
-     *
-     * @throws \Exception
+     * {@inheritdoc}
      */
     public function getFile($path)
     {
@@ -386,9 +331,7 @@ class LocalStorage implements AdapterInterface
     }
 
     /**
-     * @param string $path
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function directoryExists($path)
     {
@@ -396,9 +339,7 @@ class LocalStorage implements AdapterInterface
     }
 
     /**
-     * @param string $path
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function fileExists($path)
     {

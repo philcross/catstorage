@@ -25,6 +25,24 @@ class File implements FileInterface
     private $parent;
 
     /**
+     * Create a new instance of the object in order to store it
+     *
+     * @param DirectoryInterface $parent
+     * @param string $name
+     * @param string $content
+     *
+     * @return static
+     */
+    public static function toCreate(DirectoryInterface $parent, $name, $content = '')
+    {
+        return (new static)
+            ->setName($name)
+            ->setParentDirectory($parent)
+            ->setContent($content)
+            ->setSize(0);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getName()

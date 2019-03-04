@@ -36,7 +36,7 @@ class FileSystemInterfaceTest extends TestCase
         ]);
 
         $directory = $this->filesystem->createDirectory(
-            Directory::hydrate('/files'),
+            Directory::toCreate('/files'),
             Directory::hydrate('/storage')
         );
 
@@ -54,11 +54,11 @@ class FileSystemInterfaceTest extends TestCase
             'size'     => 12,
         ]);
 
-        $create = (new File)->setName('cat_1.txt')->setContent('here be catz');
+        $create = File::toCreate(Directory::hydrate('/images'), 'cat_1.txt', 'here be catz');
 
         $image = $this->filesystem->createFile($create, Directory::hydrate('/images'));
 
-        $this->assertFile($image, '/images/cat_1.txt');
+        $this->assertFile($image, '/images/cat_1.txt', 12);
     }
 
     public function test_it_can_delete_an_existing_directory()
@@ -153,8 +153,8 @@ class FileSystemInterfaceTest extends TestCase
         $this->assertInternalType('array', $files);
         $this->assertCount(2, $files);
 
-        $this->assertFile($files[0], '/images/grumpy_cat.gif');
-        $this->assertFile($files[1], '/images/fat_cat.gif');
+        $this->assertFile($files[0], '/images/grumpy_cat.gif', 10);
+        $this->assertFile($files[1], '/images/fat_cat.gif', 20);
     }
 
     public function test_it_can_return_the_number_of_files_in_a_directory()
@@ -229,7 +229,7 @@ class FileSystemInterfaceTest extends TestCase
 
         $result = $this->filesystem->updateFile($file);
 
-        $this->assertFile($result, '/images/test.txt');
+        $this->assertFile($result, '/images/test.txt', 10);
     }
 
     private function assertDirectory(DirectoryInterface $directory, $path)
@@ -239,12 +239,16 @@ class FileSystemInterfaceTest extends TestCase
         $this->assertEquals(date('Y-m-d H:i:s'), $directory->getCreatedTime()->format('Y-m-d H:i:s'));
     }
 
-    private function assertFile(FileInterface $file, $path)
+    private function assertFile(FileInterface $file, $path, $size = null)
     {
         $this->assertEquals(basename($path), $file->getName());
         $this->assertEquals($path, $file->getPath());
         $this->assertEquals(date('Y-m-d H:i:s'), $file->getCreatedTime()->format('Y-m-d H:i:s'));
         $this->assertEquals(date('Y-m-d H:i:s'), $file->getModifiedTime()->format('Y-m-d H:i:s'));
+
+        if (!is_null($size)) {
+            $this->assertEquals($size, $file->getSize());
+        }
     }
 
     protected function setUp()

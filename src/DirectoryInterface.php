@@ -19,7 +19,7 @@ interface DirectoryInterface
     public function setName($name);
 
     /**
-     * @return DateTimeInterface
+     * @return DateTimeInterface|null
      */
     public function getCreatedTime();
 

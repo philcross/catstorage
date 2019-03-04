@@ -10,11 +10,23 @@ class Directory implements DirectoryInterface
     /** @var string */
     private $name;
 
-    /** @var \DateTimeInterface */
+    /** @var \DateTimeInterface|null */
     private $createdTime;
 
     /** @var string */
     private $path;
+
+    /**
+     * @param string $path
+     *
+     * @return static
+     */
+    public static function toCreate($path)
+    {
+        return (new static)
+            ->setName(basename($path))
+            ->setPath($path);
+    }
 
     /**
      * @param string $path
@@ -24,9 +36,7 @@ class Directory implements DirectoryInterface
      */
     public static function hydrate($path, DateTimeInterface $created = null)
     {
-        $instance = new static;
-
-        return $instance
+        return (new static)
             ->setName(basename($path))
             ->setPath($path)
             ->setCreatedTime($created ?: new DateTime);

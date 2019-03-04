@@ -3,13 +3,10 @@
 namespace Tsc\CatStorageSystem\Tests\FileSystem\Adapters;
 
 use Tsc\CatStorageSystem\Adapters\LocalStorage;
-use Tsc\CatStorageSystem\Traits\DirectoryHelpers;
 use Tsc\CatStorageSystem\Adapters\AdapterInterface;
 
 class LocalStorageAdapterTest extends AbstractAdapterTest
 {
-    use DirectoryHelpers;
-
     protected function getRootPath()
     {
         return __DIR__.'/local_storage';
@@ -34,6 +31,19 @@ class LocalStorageAdapterTest extends AbstractAdapterTest
     {
         parent::tearDown();
 
-        $this->recursiveDeleteDirectories($this->getRootPath());
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($this->getRootPath(), \RecursiveDirectoryIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        foreach ($files as $file) {
+            if ($file->isDir()) {
+                rmdir($file->getRealPath());
+            } else {
+                unlink($file->getRealPath());
+            }
+        }
+
+        return rmdir($this->getRootPath());
     }
 }

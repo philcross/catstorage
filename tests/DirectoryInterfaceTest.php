@@ -26,4 +26,13 @@ class DirectoryInterfaceTest extends TestCase
         $this->assertEquals(new DateTime('2019-03-02 00:00:00'), $directory->getCreatedTime());
         $this->assertEquals('/test_directory', $directory->getPath());
     }
+
+    public function test_it_can_create_a_new_directory()
+    {
+        $directory = Directory::toCreate('/files/images');
+
+        $this->assertEquals('images', $directory->getName());
+        $this->assertEquals('/files/images', $directory->getPath());
+        $this->assertNull($directory->getCreatedTime());
+    }
 }

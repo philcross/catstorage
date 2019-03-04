@@ -31,7 +31,7 @@ interface FileInterface
     public function setSize($size);
 
     /**
-     * @return DateTimeInterface
+     * @return DateTimeInterface|null
      */
     public function getCreatedTime();
 
@@ -43,7 +43,7 @@ interface FileInterface
     public function setCreatedTime(DateTimeInterface $created);
 
     /**
-     * @return DateTimeInterface
+     * @return DateTimeInterface|null
      */
     public function getModifiedTime();
 

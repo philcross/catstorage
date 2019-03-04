@@ -3,13 +3,10 @@
 namespace Tsc\CatStorageSystem;
 
 use DateTime;
-use Tsc\CatStorageSystem\Traits\DirectoryHelpers;
 use Tsc\CatStorageSystem\Adapters\AdapterInterface;
 
 class FileSystem implements FileSystemInterface
 {
-    use DirectoryHelpers;
-
     /** @var AdapterInterface */
     private $adapter;
 
@@ -18,6 +15,11 @@ class FileSystem implements FileSystemInterface
         $this->adapter = $adapter;
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @throws Exceptions\PathNotInRootException
+     */
     public function createFile(FileInterface $file, DirectoryInterface $parent)
     {
         $newFile = $this->adapter->createFile($parent->getPath() . '/' . $file->getName(), $file->getContent());
@@ -30,6 +32,12 @@ class FileSystem implements FileSystemInterface
             ->setSize($newFile['size']);
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @throws Exceptions\DirectoryDoesntExistException
+     * @throws Exceptions\PathNotInRootException
+     */
     public function updateFile(FileInterface $file)
     {
         $updatedFile = $this->adapter->updateFile($file->getPath(), $file->getContent());
@@ -48,6 +56,12 @@ class FileSystem implements FileSystemInterface
             ->setModifiedTime(new DateTime($updatedFile['modified']));
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @throws Exceptions\DirectoryDoesntExistException
+     * @throws Exceptions\PathNotInRootException
+     */
     public function renameFile(FileInterface $file, $newName)
     {
         $renamedFile = $this->adapter->renameFile($file->getPath(), $newName);
@@ -66,6 +80,11 @@ class FileSystem implements FileSystemInterface
             ->setModifiedTime(new Datetime($renamedFile['modified']));
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @throws Exceptions\PathNotInRootException
+     */
     public function deleteFile(FileInterface $file)
     {
         return $this->adapter->deleteFile($file->getPath());
@@ -81,6 +100,11 @@ class FileSystem implements FileSystemInterface
         //
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @throws Exceptions\PathNotInRootException
+     */
     public function createDirectory(DirectoryInterface $directory, DirectoryInterface $parent)
     {
         $directory = $this->adapter->createDirectory($parent->getPath() . '/' . $directory->getName());
@@ -91,11 +115,23 @@ class FileSystem implements FileSystemInterface
             ->setCreatedTime(new DateTime($directory['created']));
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @throws Exceptions\PathNotInRootException
+     */
     public function deleteDirectory(DirectoryInterface $directory)
     {
         return $this->adapter->deleteDirectory($directory->getPath());
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @throws Exceptions\DirectoryAlreadyExistException
+     * @throws Exceptions\DirectoryDoesntExistException
+     * @throws Exceptions\PathNotInRootException
+     */
     public function renameDirectory(DirectoryInterface $directory, $newName)
     {
         $renamedDirectory = $this->adapter->renameDirectory($directory->getPath(), $newName);
@@ -106,21 +142,45 @@ class FileSystem implements FileSystemInterface
             ->setCreatedTime(new DateTime($renamedDirectory['created']));
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @throws Exceptions\DirectoryDoesntExistException
+     * @throws Exceptions\PathNotInRootException
+     */
     public function getDirectoryCount(DirectoryInterface $directory)
     {
         return count($this->adapter->listDirectories($directory->getPath()));
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @throws Exceptions\DirectoryDoesntExistException
+     * @throws Exceptions\PathNotInRootException
+     */
     public function getFileCount(DirectoryInterface $directory)
     {
         return count($this->adapter->listFiles($directory->getPath()));
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @throws Exceptions\DirectoryDoesntExistException
+     * @throws Exceptions\PathNotInRootException
+     */
     public function getDirectorySize(DirectoryInterface $directory)
     {
         return $this->adapter->getDirectorySize($directory->getPath());
     }
 
+    /**
+     * {@inheritdoc}
+     *
+     * @throws Exceptions\DirectoryDoesntExistException
+     * @throws Exceptions\PathNotInRootException
+     */
     public function getDirectories(DirectoryInterface $directory)
     {
         return array_map(function ($directory) {
@@ -131,6 +191,12 @@ class FileSystem implements FileSystemInterface
         }, $this->adapter->listDirectories($directory->getPath()));
     }
 
+    /**
+     * {@inheritdoc}
+     * 
+     * @throws Exceptions\DirectoryDoesntExistException
+     * @throws Exceptions\PathNotInRootException
+     */
     public function getFiles(DirectoryInterface $directory)
     {
         return array_map(function ($file) {

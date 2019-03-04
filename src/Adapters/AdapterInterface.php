@@ -2,6 +2,11 @@
 
 namespace Tsc\CatStorageSystem\Adapters;
 
+use Tsc\CatStorageSystem\Exceptions\PathNotInRootException;
+use Tsc\CatStorageSystem\Exceptions\FileDoesntExistException;
+use Tsc\CatStorageSystem\Exceptions\DirectoryDoesntExistException;
+use Tsc\CatStorageSystem\Exceptions\DirectoryAlreadyExistException;
+
 interface AdapterInterface
 {
     /**
@@ -9,7 +14,7 @@ interface AdapterInterface
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws PathNotInRootException
      */
     public function createDirectory($path);
 
@@ -18,7 +23,7 @@ interface AdapterInterface
      *
      * @return bool
      *
-     * @throws \Exception
+     * @throws PathNotInRootException
      */
     public function deleteDirectory($path);
 
@@ -28,7 +33,9 @@ interface AdapterInterface
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws PathNotInRootException
+     * @throws DirectoryDoesntExistException
+     * @throws DirectoryAlreadyExistException
      */
     public function renameDirectory($oldPath, $newPath);
 
@@ -37,7 +44,8 @@ interface AdapterInterface
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws PathNotInRootException
+     * @throws DirectoryDoesntExistException
      */
     public function listDirectories($path);
 
@@ -46,7 +54,8 @@ interface AdapterInterface
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws PathNotInRootException
+     * @throws DirectoryDoesntExistException
      */
     public function getDirectory($path);
 
@@ -54,7 +63,9 @@ interface AdapterInterface
      * @param $path
      *
      * @return int
-     * @throws \Exception
+     *
+     * @throws PathNotInRootException
+     * @throws DirectoryDoesntExistException
      */
     public function getDirectorySize($path);
 
@@ -64,7 +75,7 @@ interface AdapterInterface
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws PathNotInRootException
      */
     public function createFile($path, $content);
 
@@ -73,7 +84,7 @@ interface AdapterInterface
      *
      * @return bool
      *
-     * @throws \Exception
+     * @throws PathNotInRootException
      */
     public function deleteFile($path);
 
@@ -83,7 +94,7 @@ interface AdapterInterface
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws PathNotInRootException
      */
     public function renameFile($path, $newName);
 
@@ -93,7 +104,7 @@ interface AdapterInterface
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws PathNotInRootException
      */
     public function updateFile($path, $content);
 
@@ -102,7 +113,8 @@ interface AdapterInterface
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws PathNotInRootException
+     * @throws DirectoryDoesntExistException
      */
     public function listFiles($path);
 
@@ -111,7 +123,8 @@ interface AdapterInterface
      *
      * @return bool|string
      *
-     * @throws \Exception
+     * @throws PathNotInRootException
+     * @throws FileDoesntExistException
      */
     public function readFile($path);
 
@@ -120,7 +133,8 @@ interface AdapterInterface
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws PathNotInRootException
+     * @throws FileDoesntExistException
      */
     public function getFile($path);
 
