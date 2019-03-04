@@ -3,9 +3,8 @@
 namespace Tsc\CatStorageSystem;
 
 use DateTime;
-use Tsc\CatStorageSystem\Adapters\AdapterInterface;
-use Tsc\CatStorageSystem\Exceptions;
 use Tsc\CatStorageSystem\Traits\DirectoryHelpers;
+use Tsc\CatStorageSystem\Adapters\AdapterInterface;
 
 class FileSystem implements FileSystemInterface
 {
@@ -29,109 +28,70 @@ class FileSystem implements FileSystemInterface
 
     public function createFile(FileInterface $file, DirectoryInterface $parent)
     {
-        if (!$this->pathIsWithinRoot($parent)) {
-            throw new Exceptions\DirectoryMustBeWithinRootException;
-        }
+        $newFile = $this->adapter->createFile($parent->getPath() . '/' . $file->getName(), $file->getContent());
 
-        $parentInfo = pathinfo($parent->getPath());
-
-        if (!is_dir($parent->getPath())) {
-            $parent = $this->createDirectory(
-                $parent,
-                (new Directory)->setName(basename($parentInfo['dirname']))->setPath($parentInfo['dirname'])
-            );
-        }
-
-        $size = file_put_contents($parent->getPath() . '/' . $file->getName(), $file->getContent());
-
-        $file->setSize($size)
-            ->setCreatedTime(new DateTime)
-            ->setModifiedTime(new DateTime)
-            ->setParentDirectory($parent);
-
-        return $file;
+        return (new File)
+            ->setName($newFile['name'])
+            ->setParentDirectory(Directory::hydrate($newFile['basename']))
+            ->setCreatedTime(new DateTime($newFile['created']))
+            ->setModifiedTime(new DateTime($newFile['modified']))
+            ->setSize($newFile['size']);
     }
 
     public function updateFile(FileInterface $file)
     {
-        if (!$this->pathIsWithinRoot($file->getParentDirectory())) {
-            throw new Exceptions\DirectoryMustBeWithinRootException;
-        }
+        $updatedFile = $this->adapter->updateFile($file->getPath(), $file->getContent());
+        $parent      = $this->adapter->getDirectory($updatedFile['basename']);
 
-        $handle = fopen($file->getPath(), 'w');
+        $parentDirectory = (new Directory)
+            ->setName($parent['name'])
+            ->setPath($parent['pathname'])
+            ->setCreatedTime(new DateTime($parent['created']));
 
-        $size = fwrite($handle, $file->getContent());
-
-        fclose($handle);
-
-        $file->setSize($size);
-        $file->setCreatedTime($file->getCreatedTime() ?: new DateTime);
-        $file->setModifiedTime(new DateTime);
-
-        return $file;
+        return (new File)
+            ->setName($updatedFile['name'])
+            ->setParentDirectory($parentDirectory)
+            ->setSize($updatedFile['size'])
+            ->setCreatedTime(new DateTime($updatedFile['created']))
+            ->setModifiedTime(new DateTime($updatedFile['modified']));
     }
 
     public function renameFile(FileInterface $file, $newName)
     {
-        $path = pathinfo($file->getPath());
-        $newPath = $path['dirname'] . '/' . $newName;
+        $renamedFile = $this->adapter->renameFile($file->getPath(), $newName);
+        $parent      = $this->adapter->getDirectory($renamedFile['basename']);
 
-        if (file_exists($newPath)) {
-            throw new Exceptions\FileAlreadyExistsException;
-        }
+        $parentDirectory = (new Directory)
+            ->setName($parent['name'])
+            ->setPath($parent['pathname'])
+            ->setCreatedTime(new DateTime($parent['created']));
 
-        rename($file->getPath(), $newPath);
-
-        $file->setName($newName);
-        $file->setModifiedTime(new DateTime);
-
-        return $file;
+        return (new File)
+            ->setName($renamedFile['name'])
+            ->setParentDirectory($parentDirectory)
+            ->setSize($renamedFile['size'])
+            ->setCreatedTime(new DateTime($renamedFile['created']))
+            ->setModifiedTime(new Datetime($renamedFile['modified']));
     }
 
     public function deleteFile(FileInterface $file)
     {
-        @unlink($file->getPath());
-
-        return true;
-    }
-
-    public function createRootDirectory(DirectoryInterface $directory)
-    {
-        $this->root = $directory;
-
-        if (is_dir($this->root->getPath())) {
-            $this->root->setCreatedTime(DateTime::createFromFormat('U', filectime($this->root->getPath())));
-        } else {
-            mkdir($directory->getPath(), 0777, true);
-
-            $this->root->setCreatedTime(new DateTime);
-        }
-
-        return $this->root;
+        return $this->adapter->deleteFile($file->getPath());
     }
 
     /**
-     * @param DirectoryInterface $directory
-     * @param DirectoryInterface $parent
+     * {@inheritdoc}
      *
-     * @return DirectoryInterface
-     *
-     * @throws Exceptions\RootDirectoryNotDefinedException{@
+     * @deprecated
      */
+    public function createRootDirectory(DirectoryInterface $directory)
+    {
+        //
+    }
+
     public function createDirectory(DirectoryInterface $directory, DirectoryInterface $parent)
     {
-        if (is_null($this->root)) {
-            throw new Exceptions\RootDirectoryNotDefinedException;
-        }
-
         $directory = $this->adapter->createDirectory($parent->getPath() . '/' . $directory->getName());
-//        $directory->setPath($parent->getPath() . '/' . $directory->getName());
-//
-//        mkdir($directory->getPath(), 0777, true);
-//
-//        $directory->setCreatedTime(new Datetime);
-
-//        return $directory;
 
         return (new Directory)
             ->setName($directory['name'])
@@ -139,122 +99,55 @@ class FileSystem implements FileSystemInterface
             ->setCreatedTime(new DateTime($directory['created']));
     }
 
-    /**
-     * @param DirectoryInterface $directory
-     *
-     * @return bool
-     *
-     * @throws Exceptions\DirectoryMustBeWithinRootException
-     */
     public function deleteDirectory(DirectoryInterface $directory)
     {
-        if (!is_dir($directory->getPath())) {
-            return true;
-        }
-
-        if (!$this->pathIsWithinRoot($directory)) {
-            throw new Exceptions\DirectoryMustBeWithinRootException;
-        }
-
-        return $this->recursiveDeleteDirectories($directory->getPath());
+        return $this->adapter->deleteDirectory($directory->getPath());
     }
 
     public function renameDirectory(DirectoryInterface $directory, $newName)
     {
-        $base = pathinfo($directory->getPath(), PATHINFO_DIRNAME);
-        $newPath = $base . '/' . trim($newName, '/');
+        $renamedDirectory = $this->adapter->renameDirectory($directory->getPath(), $newName);
 
-        $moveTo = (new Directory)
-            ->setName(basename($newPath))
-            ->setPath($newPath);
-
-        if (!$this->pathIsWithinRoot($moveTo)) {
-            throw new Exceptions\DirectoryMustBeWithinRootException;
-        }
-
-        if (!is_dir($newPath)) {
-            mkdir($newPath, 0777, true);
-        }
-
-        rename($directory->getPath(), $newPath);
-
-        return $moveTo->setCreatedTime(new DateTime);
+        return (new Directory)
+            ->setName($renamedDirectory['name'])
+            ->setPath($renamedDirectory['pathname'])
+            ->setCreatedTime(new DateTime($renamedDirectory['created']));
     }
 
     public function getDirectoryCount(DirectoryInterface $directory)
     {
-        return count($this->getDirectories($directory));
+        return count($this->adapter->listDirectories($directory->getPath()));
     }
 
     public function getFileCount(DirectoryInterface $directory)
     {
-        return count($this->getFiles($directory));
+        return count($this->adapter->listFiles($directory->getPath()));
     }
 
     public function getDirectorySize(DirectoryInterface $directory)
     {
-        if (!$this->pathIsWithinRoot($directory)) {
-            throw new Exceptions\DirectoryMustBeWithinRootException;
-        }
-
-        $size = 0;
-
-        $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($directory->getPath(), \RecursiveDirectoryIterator::SKIP_DOTS)
-        );
-
-        foreach ($files as $file) {
-            $size += $file->getSize();
-        }
-
-        return $size;
+        return $this->adapter->getDirectorySize($directory->getPath());
     }
 
     public function getDirectories(DirectoryInterface $directory)
     {
-        if (!$this->pathIsWithinRoot($directory)) {
-            throw new Exceptions\DirectoryMustBeWithinRootException;
-        }
-
-        return array_map(function ($path) {
+        return array_map(function ($directory) {
             return (new Directory)
-                ->setName(basename($path))
-                ->setCreatedTime(DateTime::createFromFormat('U', filectime($path)))
-                ->setPath($path);
-        }, array_filter(glob($directory->getPath() . '/*'), 'is_dir'));
+                ->setName($directory['name'])
+                ->setPath($directory['pathname'])
+                ->setCreatedTime(new DateTime($directory['created']));
+        }, $this->adapter->listDirectories($directory->getPath()));
     }
 
     public function getFiles(DirectoryInterface $directory)
     {
-        if (!$this->pathIsWithinRoot($directory)) {
-            throw new Exceptions\DirectoryMustBeWithinRootException;
-        }
-
-        $contents = new \DirectoryIterator($directory->getPath());
-
-        $files = [];
-
-        foreach ($contents as $item) {
-            if ($item->isFile()) {
-                $files[] = (new File)
-                    ->setName($item->getBasename())
-                    ->setCreatedTime(DateTime::createFromFormat('U', $item->getCTime()))
-                    ->setModifiedTime(DateTime::createFromFormat('U', $item->getMTime()))
-                    ->setSize($item->getSize())
-                    ->setContent(file_get_contents($item->getPathname()))
-                    ->setParentDirectory($directory);
-            }
-        }
-
-        return $files;
-    }
-
-    private function pathIsWithinRoot(DirectoryInterface $directory)
-    {
-        $rootPath      = $this->realpath($this->root->getPath());
-        $directoryPath = $this->realpath($directory->getPath());
-
-        return $rootPath !== ''
-            && substr($directoryPath, 0, strlen($rootPath)) === $rootPath;
+        return array_map(function ($file) {
+            return (new File)
+                ->setName($file['name'])
+                ->setParentDirectory(Directory::hydrate($file['basename']))
+                ->setSize($file['size'])
+                ->setCreatedTime(new DateTime($file['created']))
+                ->setModifiedTime(new DateTime($file['modified']));
+        }, $this->adapter->listFiles($directory->getPath()));
     }
 }
