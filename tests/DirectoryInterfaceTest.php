@@ -4,8 +4,8 @@ namespace Tsc\CatStorageSystem\Tests;
 
 use DateTime;
 use PHPUnit\Framework\TestCase;
-use Tsc\CatStorageSystem\Directory;
-use Tsc\CatStorageSystem\DirectoryInterface;
+use Tsc\CatStorageSystem\Models\Directory;
+use Tsc\CatStorageSystem\Models\DirectoryInterface;
 
 class DirectoryInterfaceTest extends TestCase
 {

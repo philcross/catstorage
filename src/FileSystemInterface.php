@@ -2,6 +2,9 @@
 
 namespace Tsc\CatStorageSystem;
 
+use Tsc\CatStorageSystem\Models\FileInterface;
+use Tsc\CatStorageSystem\Models\DirectoryInterface;
+
 interface FileSystemInterface
 {
     /**

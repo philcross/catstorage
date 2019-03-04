@@ -3,7 +3,11 @@
 namespace Tsc\CatStorageSystem;
 
 use DateTime;
+use Tsc\CatStorageSystem\Models\File;
+use Tsc\CatStorageSystem\Models\Directory;
+use Tsc\CatStorageSystem\Models\FileInterface;
 use Tsc\CatStorageSystem\Adapters\AdapterInterface;
+use Tsc\CatStorageSystem\Models\DirectoryInterface;
 
 class FileSystem implements FileSystemInterface
 {
@@ -193,7 +197,7 @@ class FileSystem implements FileSystemInterface
 
     /**
      * {@inheritdoc}
-     * 
+     *
      * @throws Exceptions\DirectoryDoesntExistException
      * @throws Exceptions\PathNotInRootException
      */

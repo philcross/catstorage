@@ -3,11 +3,11 @@
 namespace Tsc\CatStorageSystem\Tests;
 
 use DateTime;
-use Tsc\CatStorageSystem\File;
 use PHPUnit\Framework\TestCase;
-use Tsc\CatStorageSystem\FileInterface;
+use Tsc\CatStorageSystem\Models\File;
 use PHPUnit\Framework\MockObject\MockObject;
-use Tsc\CatStorageSystem\DirectoryInterface;
+use Tsc\CatStorageSystem\Models\FileInterface;
+use Tsc\CatStorageSystem\Models\DirectoryInterface;
 
 class FileInterfaceTest extends TestCase
 {

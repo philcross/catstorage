@@ -3,14 +3,14 @@
 namespace Tsc\CatStorageSystem\Tests;
 
 use Mockery\MockInterface;
-use Tsc\CatStorageSystem\File;
 use PHPUnit\Framework\TestCase;
-use Tsc\CatStorageSystem\Directory;
 use Tsc\CatStorageSystem\FileSystem;
-use Tsc\CatStorageSystem\FileInterface;
-use Tsc\CatStorageSystem\DirectoryInterface;
+use Tsc\CatStorageSystem\Models\File;
+use Tsc\CatStorageSystem\Models\Directory;
 use Tsc\CatStorageSystem\FileSystemInterface;
+use Tsc\CatStorageSystem\Models\FileInterface;
 use Tsc\CatStorageSystem\Adapters\AdapterInterface;
+use Tsc\CatStorageSystem\Models\DirectoryInterface;
 
 class FileSystemInterfaceTest extends TestCase
 {

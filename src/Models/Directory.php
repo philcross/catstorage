@@ -1,6 +1,6 @@
 <?php
 
-namespace Tsc\CatStorageSystem;
+namespace Tsc\CatStorageSystem\Models;
 
 use DateTime;
 use DateTimeInterface;
