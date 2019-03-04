@@ -2,7 +2,7 @@
 
 namespace Tsc\CatStorageSystem\Tests\FileSystem;
 
-use Tsc\CatStorageSystem\Adapters\LocalStorage;
+use Tsc\CatStorageSystem\Adapters\AdapterInterface;
 use Tsc\CatStorageSystem\Directory;
 use Tsc\CatStorageSystem\DirectoryInterface;
 
@@ -10,17 +10,20 @@ class RenameDirectoryTest extends DirectoryTestCase
 {
     public function test_an_existing_directory_can_be_renamed()
     {
-        $this->filesystem->setAdapter(new LocalStorage(__DIR__.'/../storage'));
+        $adapter = \Mockery::mock(AdapterInterface::class);
+        $adapter->shouldReceive('renameDirectory')->once()->with('/images', 'img')->andReturn([
+            'name'     => 'img',
+            'pathname' => '/img',
+            'basename' => '/',
+            'created'  => date('Y-m-d H:i:s'),
+        ]);
 
-        $rename = Directory::hydrate($this->root.'/images');
+        $this->filesystem->setAdapter($adapter);
 
-        $result = $this->filesystem->renameDirectory($rename, 'img');
+        $result = $this->filesystem->renameDirectory(Directory::hydrate('/images'), 'img');
 
         $this->assertInstanceOf(DirectoryInterface::class, $result);
 
-        $this->assertDirectoryEquals($result, $this->root.'/img');
-
-        $this->assertFalse(is_dir($rename->getPath()));
-        $this->assertTrue(is_dir($result->getPath()));
+        $this->assertDirectoryEquals($result, '/img');
     }
 }

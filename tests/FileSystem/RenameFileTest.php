@@ -2,27 +2,40 @@
 
 namespace Tsc\CatStorageSystem\Tests\FileSystem;
 
-use Tsc\CatStorageSystem\Adapters\LocalStorage;
 use Tsc\CatStorageSystem\File;
 use Tsc\CatStorageSystem\Directory;
 use Tsc\CatStorageSystem\FileInterface;
+use Tsc\CatStorageSystem\Adapters\AdapterInterface;
 
 class RenameFileTest extends FileTestCase
 {
     public function test_it_can_rename_a_file()
     {
-        $this->filesystem->setAdapter(new LocalStorage(__DIR__.'/../storage'));
+        $adapter = \Mockery::mock(AdapterInterface::class);
+        $adapter->shouldReceive('renameFile')->once()->with('/images/meh_cat.gif', '/images/happy_cat.gif')->andReturn([
+            'name'     => 'happy_cat.gif',
+            'pathname' => '/images/happy_cat.gif',
+            'basename' => '/images',
+            'created'  => date('Y-m-d H:i:s'),
+            'modified' => date('Y-m-d H:i:s'),
+            'size'     => 10,
+        ]);
 
-        $directory = Directory::hydrate($this->root . '/images');
-        $file = (new File)->setName('test.txt')->setParentDirectory($directory);
+        $adapter->shouldReceive('getDirectory')->once()->with('/images')->andReturn([
+            'name'     => 'images',
+            'pathname' => '/images',
+            'basename' => '/',
+            'created'  => date('Y-m-d H:i:s'),
+        ]);
 
-        $result = $this->filesystem->renameFile($file, 'testing.txt');
+        $this->filesystem->setAdapter($adapter);
+
+        $file = (new File)->setName('meh_cat.gif')->setParentDirectory(Directory::hydrate('/images'));
+
+        $result = $this->filesystem->renameFile($file, '/images/happy_cat.gif');
 
         $this->assertInstanceOf(FileInterface::class, $result);
-        $this->assertEquals('testing.txt', $result->getName());
-        $this->assertEquals($this->root . '/testing.txt', $result->getPath());
-
-        $this->assertTrue(file_exists($this->root . '/testing.txt'));
-        $this->assertFalse(file_exists($this->root . '/images/test.txt'));
+        $this->assertEquals('happy_cat.gif', $result->getName());
+        $this->assertEquals('/images/happy_cat.gif', $result->getPath());
     }
 }

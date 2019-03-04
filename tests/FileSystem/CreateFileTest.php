@@ -5,27 +5,32 @@ namespace Tsc\CatStorageSystem\Tests\FileSystem;
 use Tsc\CatStorageSystem\File;
 use Tsc\CatStorageSystem\Directory;
 use Tsc\CatStorageSystem\FileInterface;
-use Tsc\CatStorageSystem\Adapters\LocalStorage;
+use Tsc\CatStorageSystem\Adapters\AdapterInterface;
 
 class CreateFileTest extends FileTestCase
 {
     public function test_it_can_create_a_new_file()
     {
-        $content = file_get_contents(__DIR__ . '/../../images/cat_1.gif');
-        $this->filesystem->setAdapter(new LocalStorage(__DIR__.'/../storage'));
+        $adapter = \Mockery::mock(AdapterInterface::class);
+        $adapter->shouldReceive('createFile')->once()->with('/images/cat_1.txt', 'here be catz')->andReturn([
+            'name'     => 'cat_1.txt',
+            'pathname' => '/images/cat_1.txt',
+            'basename' => '/images',
+            'created'  => date('Y-m-d H:i:s'),
+            'modified' => date('Y-m-d H:i:s'),
+            'size'     => 12,
+        ]);
 
-        $file = (new File)->setName('cat_1.gif')->setContent($content);
+        $this->filesystem->setAdapter($adapter);
 
-        $directory = Directory::hydrate($this->root . '/images');
+        $create = (new File)->setName('cat_1.txt')->setContent('here be catz');
 
-        $image = $this->filesystem->createFile($file, $directory);
+        $image = $this->filesystem->createFile($create, Directory::hydrate('/images'));
 
         $this->assertInstanceOf(FileInterface::class, $image);
-        $this->assertEquals('cat_1.gif', $image->getName());
-        $this->assertEquals(realpath(__DIR__ . '/../storage/images/cat_1.gif'), $image->getPath());
+        $this->assertEquals('cat_1.txt', $image->getName());
+        $this->assertEquals('/images/cat_1.txt', $image->getPath());
         $this->assertEquals(date('Y-m-d H:i:s'), $image->getCreatedTime()->format('Y-m-d H:i:s'));
         $this->assertEquals(date('Y-m-d H:i:s'), $image->getModifiedTime()->format('Y-m-d H:i:s'));
-
-        $this->assertTrue(is_file($image->getPath()));
     }
 }

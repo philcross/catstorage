@@ -4,7 +4,7 @@ namespace Tsc\CatStorageSystem\Tests\FileSystem;
 
 use Tsc\CatStorageSystem\Directory;
 use Tsc\CatStorageSystem\FileSystem;
-use Tsc\CatStorageSystem\Adapters\LocalStorage;
+use Tsc\CatStorageSystem\Adapters\AdapterInterface;
 
 class CreateDirectoryTest extends DirectoryTestCase
 {
@@ -24,14 +24,24 @@ class CreateDirectoryTest extends DirectoryTestCase
 
     public function test_it_can_create_a_new_directory()
     {
-        $root   = Directory::hydrate($this->root);
-        $create = (new Directory)->setName('files');
+        $adapter = \Mockery::mock(AdapterInterface::class);
+        $adapter->shouldReceive('createDirectory')->once()->with('/storage/files')->andReturn([
+            'name'     => 'files',
+            'pathname' => '/storage/files',
+            'basename' => '/storage',
+            'created'  => date('Y-m-d H:i:s'),
+        ]);
 
-        $filesystem = new FileSystem($root);
-        $filesystem->setAdapter(new LocalStorage(__DIR__.'/../storage'));
+        $filesystem = new FileSystem;
+        $filesystem->setAdapter($adapter);
 
-        $directory = $filesystem->createDirectory($create, $root);
+        $directory = $filesystem->createDirectory(
+            (new Directory)->setName('files'),
+            Directory::hydrate('/storage')
+        );
 
-        $this->assertRecentlyCreatedDirectory($directory, $this->root.'/files');
+        $this->assertEquals('files', $directory->getName());
+        $this->assertEquals('/storage/files', $directory->getPath());
+        $this->assertEquals(date('Y-m-d H:i:s'), $directory->getCreatedTime()->format('Y-m-d H:i:s'));
     }
 }

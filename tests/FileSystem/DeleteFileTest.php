@@ -4,23 +4,21 @@ namespace Tsc\CatStorageSystem\Tests\FileSystem;
 
 use Tsc\CatStorageSystem\File;
 use Tsc\CatStorageSystem\Directory;
-use Tsc\CatStorageSystem\Adapters\LocalStorage;
+use Tsc\CatStorageSystem\Adapters\AdapterInterface;
 
 class DeleteFileTest extends FileTestCase
 {
     public function test_it_can_delete_a_file()
     {
-        $this->filesystem->setAdapter(new LocalStorage(__DIR__.'/../storage'));
+        $adapter = \Mockery::mock(AdapterInterface::class);
+        $adapter->shouldReceive('deleteFile')->once()->with('/images/grumpy_cat.gif')->andReturn(true);
 
-        file_put_contents($this->root . '/images/to_delete.txt', '');
+        $this->filesystem->setAdapter($adapter);
 
-        $directory = Directory::hydrate($this->root . '/images');
-        $file = (new File)->setName('to_delete.txt')->setParentDirectory($directory);
+        $file = (new File)->setName('grumpy_cat.gif')->setParentDirectory(Directory::hydrate('/images'));
 
         $result = $this->filesystem->deleteFile($file);
 
         $this->assertTrue($result);
-
-        $this->assertFalse(file_exists($this->root . '/images/to_delete.txt'));
     }
 }

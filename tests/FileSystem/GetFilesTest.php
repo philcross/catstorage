@@ -2,6 +2,7 @@
 
 namespace Tsc\CatStorageSystem\Tests\FileSystem;
 
+use Tsc\CatStorageSystem\Adapters\AdapterInterface;
 use Tsc\CatStorageSystem\Adapters\LocalStorage;
 use Tsc\CatStorageSystem\Directory;
 use Tsc\CatStorageSystem\Exceptions\DirectoryMustBeWithinRootException;
@@ -11,29 +12,45 @@ class GetFilesTest extends FileTestCase
 {
     public function test_it_can_return_an_array_of_files_within_a_directory()
     {
-        $this->filesystem->setAdapter(new LocalStorage(__DIR__.'/../storage'));
+        $adapter = \Mockery::mock(AdapterInterface::class);
+        $adapter->shouldReceive('listFiles')->once()->with('/images')->andReturn([
+            [
+                'name'     => 'grumpy_cat.gif',
+                'pathname' => '/images/grumpy_cat.gif',
+                'basename' => '/images',
+                'created'  => date('Y-m-d H:i:s'),
+                'modified' => date('Y-m-d H:i:s'),
+                'size'     => 10,
+            ],
+            [
+                'name'     => 'fat_cat.gif',
+                'pathname' => '/images/fat_cat.gif',
+                'basename' => '/images',
+                'created'  => date('Y-m-d H:i:s'),
+                'modified' => date('Y-m-d H:i:s'),
+                'size'     => 20,
+            ]
+        ]);
 
-        $directory = Directory::hydrate($this->root . '/images');
+        $this->filesystem->setAdapter($adapter);
 
-        $files = $this->filesystem->getFiles($directory);
+        /** @var FileInterface[] $files */
+        $files = $this->filesystem->getFiles(Directory::hydrate('/images'));
 
         $this->assertInternalType('array', $files);
-        $this->assertCount(1, $files);
+        $this->assertCount(2, $files);
 
-        usort($files, function($a, $b) {
-            return $a->getName() <=> $b->getName();
-        });
-
-        $this->assertInstanceOf(FileInterface::class, $files[0]);
-        $this->assertEquals($this->root . '/images/test.txt', $files[0]->getPath());
+        $this->assertEquals('/images/grumpy_cat.gif', $files[0]->getPath());
+        $this->assertEquals('/images/fat_cat.gif', $files[1]->getPath());
     }
 
     public function test_it_can_return_the_number_of_files_in_a_directory()
     {
-        $this->filesystem->setAdapter(new LocalStorage(__DIR__.'/../storage'));
+        $adapter = \Mockery::mock(AdapterInterface::class);
+        $adapter->shouldReceive('listFiles')->once()->with('/images')->andReturn([[], []]);
 
-        $directory = Directory::hydrate($this->root . '/images');
+        $this->filesystem->setAdapter($adapter);
 
-        $this->assertEquals(1, $this->filesystem->getFileCount($directory));
+        $this->assertEquals(2, $this->filesystem->getFileCount(Directory::hydrate('/images')));
     }
 }
