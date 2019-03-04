@@ -5,7 +5,7 @@ for ease.
 
 To run via console, just run `php console`, which will bring up a list of available commands:
 
- - `php console cat:list-directories [/sub-directory-path="/"]`
+ - `php console cats:list-directories [/sub-directory-path="/"]`
  
     This will list all the directories within a given directory path. By default, it will list directories in the 
     filesystem root, but you can go deeper by specifying the path (relative to the root). For example, the root directory
@@ -15,7 +15,7 @@ To run via console, just run `php console`, which will bring up a list of availa
     I've tried to keep the command easy to use, while also demonstrating the filesystem implementation, so the command
     will ask you questions after displaying the table of directories (such as would you like to create a new directory, etc)
     
- - `php console cat:list-files [/sub-directory-path="/"]`
+ - `php console cats:list-files [/sub-directory-path="/"]`
     
     Exactly the same as the above command, but instead lists the files within a given directory.
     
