@@ -4,6 +4,7 @@ namespace Tsc\CatStorageSystem;
 
 use Symfony\Component\Console\Application;
 use Tsc\CatStorageSystem\Commands\ListDirectories;
+use Tsc\CatStorageSystem\Commands\ListFiles;
 
 class Cats
 {
@@ -35,6 +36,7 @@ class Cats
     public function run()
     {
         $this->console->add(new ListDirectories($this->filesystem));
+        $this->console->add(new ListFiles($this->filesystem));
 
         $this->console->run();
     }
