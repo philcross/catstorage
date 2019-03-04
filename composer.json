@@ -6,7 +6,9 @@
         "phpunit/phpunit": "^6.4",
         "mockery/mockery": "^1.2"
     },
-    "require": {},
+    "require": {
+        "symfony/console": "^4.2"
+    },
     "autoload": {
         "psr-4": {
             "Tsc\\CatStorageSystem\\": "src/"
