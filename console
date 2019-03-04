@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__.'/vendor/autoload.php';
+
+use Tsc\CatStorageSystem\Cats;
+use Tsc\CatStorageSystem\FileSystem;
+use Symfony\Component\Console\Application;
+use Tsc\CatStorageSystem\Adapters\LocalStorage;
+
+$application = new Application;
+$filesystem  = new FileSystem(new LocalStorage(__DIR__.'/images'));
+
+$cats = new Cats($application, $filesystem);
+$cats->run();
