@@ -10,18 +10,10 @@ class FileSystem implements FileSystemInterface
 {
     use DirectoryHelpers;
 
-    /** @var DirectoryInterface */
-    private $root;
-
     /** @var AdapterInterface */
     private $adapter;
 
-    public function __construct(DirectoryInterface $root = null)
-    {
-        $this->root = $root;
-    }
-
-    public function setAdapter(AdapterInterface $adapter)
+    public function __construct(AdapterInterface $adapter)
     {
         $this->adapter = $adapter;
     }

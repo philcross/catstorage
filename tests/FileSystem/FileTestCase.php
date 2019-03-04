@@ -11,9 +11,6 @@ class FileTestCase extends TestCase
     /** @var string */
     protected $root;
 
-    /** @var FileSystem */
-    protected $filesystem;
-
     protected function setUp()
     {
         parent::setUp();
@@ -24,7 +21,6 @@ class FileTestCase extends TestCase
         file_put_contents(__DIR__.'/../storage/images/test.txt', 'test');
 
         $this->root       = realpath(__DIR__.'/../storage');
-        $this->filesystem = new FileSystem(Directory::hydrate($this->root));
     }
 
     protected function tearDown()

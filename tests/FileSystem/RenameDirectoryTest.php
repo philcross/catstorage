@@ -5,6 +5,7 @@ namespace Tsc\CatStorageSystem\Tests\FileSystem;
 use Tsc\CatStorageSystem\Adapters\AdapterInterface;
 use Tsc\CatStorageSystem\Directory;
 use Tsc\CatStorageSystem\DirectoryInterface;
+use Tsc\CatStorageSystem\FileSystem;
 
 class RenameDirectoryTest extends DirectoryTestCase
 {
@@ -18,9 +19,9 @@ class RenameDirectoryTest extends DirectoryTestCase
             'created'  => date('Y-m-d H:i:s'),
         ]);
 
-        $this->filesystem->setAdapter($adapter);
+        $filesystem = new FileSystem($adapter);
 
-        $result = $this->filesystem->renameDirectory(Directory::hydrate('/images'), 'img');
+        $result = $filesystem->renameDirectory(Directory::hydrate('/images'), 'img');
 
         $this->assertInstanceOf(DirectoryInterface::class, $result);
 

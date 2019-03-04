@@ -13,7 +13,9 @@ class CreateDirectoryTest extends DirectoryTestCase
      */
     public function it_can_create_a_root_directory()
     {
-        $filesystem = new FileSystem;
+        $adapter = \Mockery::mock(AdapterInterface::class);
+
+        $filesystem = new FileSystem($adapter);
 
         $root = (new Directory)->setName('files')->setPath($this->root.'/files');
 
@@ -32,8 +34,7 @@ class CreateDirectoryTest extends DirectoryTestCase
             'created'  => date('Y-m-d H:i:s'),
         ]);
 
-        $filesystem = new FileSystem;
-        $filesystem->setAdapter($adapter);
+        $filesystem = new FileSystem($adapter);
 
         $directory = $filesystem->createDirectory(
             (new Directory)->setName('files'),

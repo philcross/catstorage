@@ -12,9 +12,6 @@ class DirectoryTestCase extends TestCase
     /** @var string */
     protected $root;
 
-    /** @var FileSystem */
-    protected $filesystem;
-
     protected function assertRecentlyCreatedDirectory(DirectoryInterface $directory, $path)
     {
         $this->assertTrue(is_dir($directory->getPath()));
@@ -39,7 +36,6 @@ class DirectoryTestCase extends TestCase
         file_put_contents(__DIR__.'/../storage/images/cats/test.txt', 'test');
 
         $this->root       = realpath(__DIR__.'/../storage');
-        $this->filesystem = new FileSystem(Directory::hydrate($this->root));
     }
 
     protected function tearDown()

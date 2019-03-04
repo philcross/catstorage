@@ -4,6 +4,7 @@ namespace Tsc\CatStorageSystem\Tests\FileSystem;
 
 use Tsc\CatStorageSystem\Directory;
 use Tsc\CatStorageSystem\Adapters\AdapterInterface;
+use Tsc\CatStorageSystem\FileSystem;
 
 class GetDirectoriesTest extends DirectoryTestCase
 {
@@ -25,9 +26,9 @@ class GetDirectoriesTest extends DirectoryTestCase
             ]
         ]);
 
-        $this->filesystem->setAdapter($adapter);
+        $filesystem = new FileSystem($adapter);
 
-        $result = $this->filesystem->getDirectories(Directory::hydrate('/images'));
+        $result = $filesystem->getDirectories(Directory::hydrate('/images'));
 
         $this->assertInternalType('array', $result);
         $this->assertCount(2, $result);
@@ -41,11 +42,11 @@ class GetDirectoriesTest extends DirectoryTestCase
         $adapter = \Mockery::mock(AdapterInterface::class);
         $adapter->shouldReceive('listDirectories')->once()->with('/images')->andReturn([[], []]);
 
-        $this->filesystem->setAdapter($adapter);
+        $filesystem = new FileSystem($adapter);
 
         $images = Directory::hydrate('/images');
 
-        $this->assertEquals(2, $this->filesystem->getDirectoryCount($images));
+        $this->assertEquals(2, $filesystem->getDirectoryCount($images));
     }
 
     public function test_it_can_return_the_size_of_the_directory()
@@ -53,8 +54,8 @@ class GetDirectoriesTest extends DirectoryTestCase
         $adapter = \Mockery::mock(AdapterInterface::class);
         $adapter->shouldReceive('getDirectorySize')->once()->with('/images')->andReturn(10);
 
-        $this->filesystem->setAdapter($adapter);
+        $filesystem = new FileSystem($adapter);
 
-        $this->assertEquals(10, $this->filesystem->getDirectorySize(Directory::hydrate('/images')));
+        $this->assertEquals(10, $filesystem->getDirectorySize(Directory::hydrate('/images')));
     }
 }

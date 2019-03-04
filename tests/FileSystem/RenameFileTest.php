@@ -6,6 +6,7 @@ use Tsc\CatStorageSystem\File;
 use Tsc\CatStorageSystem\Directory;
 use Tsc\CatStorageSystem\FileInterface;
 use Tsc\CatStorageSystem\Adapters\AdapterInterface;
+use Tsc\CatStorageSystem\FileSystem;
 
 class RenameFileTest extends FileTestCase
 {
@@ -28,11 +29,11 @@ class RenameFileTest extends FileTestCase
             'created'  => date('Y-m-d H:i:s'),
         ]);
 
-        $this->filesystem->setAdapter($adapter);
+        $filesystem = new FileSystem($adapter);
 
         $file = (new File)->setName('meh_cat.gif')->setParentDirectory(Directory::hydrate('/images'));
 
-        $result = $this->filesystem->renameFile($file, '/images/happy_cat.gif');
+        $result = $filesystem->renameFile($file, '/images/happy_cat.gif');
 
         $this->assertInstanceOf(FileInterface::class, $result);
         $this->assertEquals('happy_cat.gif', $result->getName());

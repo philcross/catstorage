@@ -6,6 +6,7 @@ use Tsc\CatStorageSystem\File;
 use Tsc\CatStorageSystem\Directory;
 use Tsc\CatStorageSystem\FileInterface;
 use Tsc\CatStorageSystem\Adapters\AdapterInterface;
+use Tsc\CatStorageSystem\FileSystem;
 
 class CreateFileTest extends FileTestCase
 {
@@ -21,11 +22,11 @@ class CreateFileTest extends FileTestCase
             'size'     => 12,
         ]);
 
-        $this->filesystem->setAdapter($adapter);
+        $filesystem = new FileSystem($adapter);
 
         $create = (new File)->setName('cat_1.txt')->setContent('here be catz');
 
-        $image = $this->filesystem->createFile($create, Directory::hydrate('/images'));
+        $image = $filesystem->createFile($create, Directory::hydrate('/images'));
 
         $this->assertInstanceOf(FileInterface::class, $image);
         $this->assertEquals('cat_1.txt', $image->getName());

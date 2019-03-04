@@ -4,6 +4,7 @@ namespace Tsc\CatStorageSystem\Tests\FileSystem;
 
 use Tsc\CatStorageSystem\Directory;
 use Tsc\CatStorageSystem\Adapters\AdapterInterface;
+use Tsc\CatStorageSystem\FileSystem;
 
 class DeleteDirectoryTest extends DirectoryTestCase
 {
@@ -12,10 +13,10 @@ class DeleteDirectoryTest extends DirectoryTestCase
         $adapter = \Mockery::mock(AdapterInterface::class);
         $adapter->shouldReceive('deleteDirectory')->once()->with('/images/cats')->andReturn(true);
 
-        $this->filesystem->setAdapter($adapter);
+        $filesystem = new FileSystem($adapter);
         $delete = Directory::hydrate('/images/cats');
 
-        $result = $this->filesystem->deleteDirectory($delete);
+        $result = $filesystem->deleteDirectory($delete);
 
         $this->assertTrue($result);
         $this->assertFalse(is_dir($delete->getPath()));

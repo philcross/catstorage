@@ -5,6 +5,7 @@ namespace Tsc\CatStorageSystem\Tests\FileSystem;
 use Tsc\CatStorageSystem\File;
 use Tsc\CatStorageSystem\Directory;
 use Tsc\CatStorageSystem\Adapters\AdapterInterface;
+use Tsc\CatStorageSystem\FileSystem;
 
 class DeleteFileTest extends FileTestCase
 {
@@ -13,11 +14,11 @@ class DeleteFileTest extends FileTestCase
         $adapter = \Mockery::mock(AdapterInterface::class);
         $adapter->shouldReceive('deleteFile')->once()->with('/images/grumpy_cat.gif')->andReturn(true);
 
-        $this->filesystem->setAdapter($adapter);
+        $filesystem = new FileSystem($adapter);
 
         $file = (new File)->setName('grumpy_cat.gif')->setParentDirectory(Directory::hydrate('/images'));
 
-        $result = $this->filesystem->deleteFile($file);
+        $result = $filesystem->deleteFile($file);
 
         $this->assertTrue($result);
     }

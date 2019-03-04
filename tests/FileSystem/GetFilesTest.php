@@ -7,6 +7,7 @@ use Tsc\CatStorageSystem\Adapters\LocalStorage;
 use Tsc\CatStorageSystem\Directory;
 use Tsc\CatStorageSystem\Exceptions\DirectoryMustBeWithinRootException;
 use Tsc\CatStorageSystem\FileInterface;
+use Tsc\CatStorageSystem\FileSystem;
 
 class GetFilesTest extends FileTestCase
 {
@@ -32,10 +33,10 @@ class GetFilesTest extends FileTestCase
             ]
         ]);
 
-        $this->filesystem->setAdapter($adapter);
+        $filesystem = new FileSystem($adapter);
 
         /** @var FileInterface[] $files */
-        $files = $this->filesystem->getFiles(Directory::hydrate('/images'));
+        $files = $filesystem->getFiles(Directory::hydrate('/images'));
 
         $this->assertInternalType('array', $files);
         $this->assertCount(2, $files);
@@ -49,8 +50,8 @@ class GetFilesTest extends FileTestCase
         $adapter = \Mockery::mock(AdapterInterface::class);
         $adapter->shouldReceive('listFiles')->once()->with('/images')->andReturn([[], []]);
 
-        $this->filesystem->setAdapter($adapter);
+        $filesystem = new FileSystem($adapter);
 
-        $this->assertEquals(2, $this->filesystem->getFileCount(Directory::hydrate('/images')));
+        $this->assertEquals(2, $filesystem->getFileCount(Directory::hydrate('/images')));
     }
 }
