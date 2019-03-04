@@ -2,6 +2,7 @@
 
 namespace Tsc\CatStorageSystem\Tests\FileSystem;
 
+use Tsc\CatStorageSystem\Adapters\LocalStorage;
 use Tsc\CatStorageSystem\Directory;
 use Tsc\CatStorageSystem\FileSystem;
 use Tsc\CatStorageSystem\Exceptions\RootDirectoryNotDefinedException;
@@ -25,6 +26,7 @@ class CreateDirectoryTest extends DirectoryTestCase
         $create = (new Directory)->setName('files');
 
         $filesystem = new FileSystem($root);
+        $filesystem->setAdapter(new LocalStorage(__DIR__.'/../storage'));
 
         $directory = $filesystem->createDirectory($create, $root);
 

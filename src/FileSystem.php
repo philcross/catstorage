@@ -3,6 +3,7 @@
 namespace Tsc\CatStorageSystem;
 
 use DateTime;
+use Tsc\CatStorageSystem\Adapters\AdapterInterface;
 use Tsc\CatStorageSystem\Exceptions;
 use Tsc\CatStorageSystem\Traits\DirectoryHelpers;
 
@@ -13,9 +14,17 @@ class FileSystem implements FileSystemInterface
     /** @var DirectoryInterface */
     private $root;
 
+    /** @var AdapterInterface */
+    private $adapter;
+
     public function __construct(DirectoryInterface $root = null)
     {
         $this->root = $root;
+    }
+
+    public function setAdapter(AdapterInterface $adapter)
+    {
+        $this->adapter = $adapter;
     }
 
     public function createFile(FileInterface $file, DirectoryInterface $parent)
@@ -115,13 +124,19 @@ class FileSystem implements FileSystemInterface
             throw new Exceptions\RootDirectoryNotDefinedException;
         }
 
-        $directory->setPath($parent->getPath() . '/' . $directory->getName());
+        $directory = $this->adapter->createDirectory($parent->getPath() . '/' . $directory->getName());
+//        $directory->setPath($parent->getPath() . '/' . $directory->getName());
+//
+//        mkdir($directory->getPath(), 0777, true);
+//
+//        $directory->setCreatedTime(new Datetime);
 
-        mkdir($directory->getPath(), 0777, true);
+//        return $directory;
 
-        $directory->setCreatedTime(new Datetime);
-
-        return $directory;
+        return (new Directory)
+            ->setName($directory['name'])
+            ->setPath($directory['pathname'])
+            ->setCreatedTime(new DateTime($directory['created']));
     }
 
     /**
